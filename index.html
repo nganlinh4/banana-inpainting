@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banana Inpainting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            main: ['Nunito', 'sans-serif'],
+          },
+          colors: {
+            bg: 'var(--c-bg)',
+            'bg-alt': 'var(--c-bg-alt)',
+            text: 'var(--c-text)',
+            'text-muted': 'var(--c-text-muted)',
+            pink: '#ff6b9d',
+            purple: '#b388ff',
+            blue: '#7dd3fc',
+            mint: '#86efac',
+            yellow: '#fde047',
+            orange: '#fdba74',
+          },
+          boxShadow: {
+            clay: '8px 8px 16px var(--shadow-dark), -4px -4px 12px var(--shadow-light), inset 2px 2px 4px var(--shadow-light-inset), inset -1px -1px 3px var(--shadow-dark-inset)',
+            'clay-hover': '12px 12px 24px var(--shadow-dark-hover), -6px -6px 16px var(--shadow-light), inset 2px 2px 4px var(--shadow-light-inset), inset -1px -1px 3px var(--shadow-dark-inset)',
+            'clay-pressed': '4px 4px 8px var(--shadow-dark), -2px -2px 6px var(--shadow-light), inset 4px 4px 8px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light-inset)',
+          },
+          animation: {
+            'bounce-in': 'bounceIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+            'float-up': 'floatUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'shimmer': 'shimmer 2.5s linear infinite',
+            'rainbow': 'rainbow 3s linear infinite',
+            'slide-in-right': 'slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) both',
+          },
+          keyframes: {
+            bounceIn: {
+              '0%': { opacity: '0', transform: 'scale(0.3)' },
+              '50%': { transform: 'scale(1.05)' },
+              '70%': { transform: 'scale(0.9)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+            floatUp: {
+              'from': { opacity: '0', transform: 'translateY(60px)' },
+              'to': { opacity: '1', transform: 'translateY(0)' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            },
+            rainbow: {
+              '0%': { filter: 'hue-rotate(0deg)' },
+              '100%': { filter: 'hue-rotate(360deg)' }
+            },
+            slideInRight: {
+              '0%': { transform: 'translateX(100%)' },
+              '100%': { transform: 'translateX(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      /* Light Theme Variables */
+      --c-bg: #f5f0ff;
+      --c-bg-alt: #ffe8f5;
+      --c-text: #2d1b4e;
+      --c-text-muted: #6b5b8a;
+      
+      --shadow-dark: rgba(166, 141, 204, 0.4);
+      --shadow-light: rgba(255, 255, 255, 0.9);
+      --shadow-light-inset: rgba(255, 255, 255, 0.6);
+      --shadow-dark-inset: rgba(166, 141, 204, 0.2);
+      --shadow-dark-hover: rgba(166, 141, 204, 0.5);
+    }
+
+    html.dark {
+      /* Dark Theme Variables */
+      --c-bg: #1a1b26;
+      --c-bg-alt: #24283b;
+      --c-text: #c0caf5;
+      --c-text-muted: #7aa2f7;
+      
+      --shadow-dark: rgba(0, 0, 0, 0.6);
+      --shadow-light: rgba(56, 59, 82, 0.5);
+      --shadow-light-inset: rgba(56, 59, 82, 0.3);
+      --shadow-dark-inset: rgba(0, 0, 0, 0.4);
+      --shadow-dark-hover: rgba(0, 0, 0, 0.8);
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--c-bg) 0%, var(--c-bg-alt) 100%);
+      color: var(--c-text);
+      font-family: 'Nunito', sans-serif;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    .material-symbols-rounded {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* AI Mode Aurora Glow Animation */
+    @keyframes ai-rotate {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .ai-glow-border {
+      position: absolute;
+      inset: -3px;
+      border-radius: 16px;
+      padding: 3px;
+      /* Gradient Colors: Blue, Purple, Red, Yellow, Green, Blue */
+      background: linear-gradient(90deg, #4285F4, #9B72CB, #D96570, #FBCB04, #34A853, #4285F4);
+      background-size: 300% 100%;
+      animation: ai-rotate 3s linear infinite;
+      -webkit-mask: 
+         linear-gradient(#fff 0 0) content-box, 
+         linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .ai-glow-surface {
+      position: absolute;
+      inset: 0;
+      border-radius: 13px;
+      background: linear-gradient(90deg, rgba(66, 133, 244, 0.5), rgba(155, 114, 203, 0.5), rgba(217, 101, 112, 0.5), rgba(251, 203, 4, 0.5), rgba(52, 168, 83, 0.5), rgba(66, 133, 244, 0.5));
+      background-size: 300% 100%;
+      animation: ai-rotate 3s linear infinite;
+      pointer-events: none;
+      z-index: 19;
+      filter: blur(8px);
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.1"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

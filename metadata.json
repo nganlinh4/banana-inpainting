@@ -1,0 +1,7 @@
+{
+  "name": "Banana Inpainting",
+  "description": "A claymorphism-styled image editor that uses Gemini 2.5 Flash Image to modify specific regions of your photos with soft-edge blending.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
